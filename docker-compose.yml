@@ -28,7 +28,7 @@ services:
       DB_USER: ${DB_USER}
       DB_PASS: ${DB_PASS}
       DB_URL: jdbc:postgresql://db:5432/fortune_database
-      WHATSAPP_API_URL: http://whatsapp:3000
+      WHATSAPP_URL: http://whatsapp:3000
 
   whatsapp:
     image: emancilla/fortune-messages:latest
