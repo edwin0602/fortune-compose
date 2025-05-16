@@ -1,0 +1,54 @@
+services:
+  db:
+    image: postgres:14.1-alpine
+    restart: always
+    environment:
+      POSTGRES_DB: fortune_database
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASS}
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+
+  backend:
+    image: emancilla/fortune-backoffice-service:latest
+    depends_on:
+      - db
+      - whatsapp
+    ports:
+    - '8080:8080'
+    environment:
+      SECRET: ${SECRET}
+      POS_KEY: ${POS_KEY}
+      POS_NAME: ${POS_NAME}
+      JWT_HASH: ${JWT_HASH}
+      EC_HASH: ${EC_HASH}
+      DB_DDL: ${DB_DDL}
+      DB_USER: ${DB_USER}
+      DB_PASS: ${DB_PASS}
+      DB_URL: jdbc:postgresql://db:5432/fortune_database
+      WHATSAPP_API_URL: http://whatsapp:3000
+
+  whatsapp:
+    image: emancilla/fortune-messages:latest
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./whatsapp/session:/app/.wwebjs_auth
+    restart: unless-stopped
+
+  frontend:
+    image: emancilla/fortune-backoffice-app:latest
+    ports:
+    - '80:80'
+
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    ports:
+      - '9090:8080'
+volumes:
+  db-data:
